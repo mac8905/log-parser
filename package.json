@@ -1,0 +1,24 @@
+{
+  "name": "log-parser",
+  "version": "1.0.0",
+  "main": "parser.js",
+  "scripts": {
+    "build": "rimraf dist/* && tsc",
+    "start": "node .",
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts"
+  },
+  "repository": "git@github.com:mac8905/log-parser.git",
+  "author": "Miguel Caro <miguel.caro@sideinc.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "@types/node": "^17.0.8",
+    "@types/yargs": "^17.0.8",
+    "rimraf": "^3.0.2",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "yargs": "^17.3.1"
+  }
+}
