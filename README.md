@@ -12,6 +12,8 @@ Log Parser CLI tool, which parses the input log file to output log file.
 6. Added change watcher `yarn add ts-node-dev --dev`
 7. Added TSConfig base `yarn add @tsconfig/node16 --dev`
 8. Added yargs to parse arguments `yarn add yargs`
+9. Added jest to cover testing `yarn add jest --dev`
+10. Added jest config `yarn ts-jest config:init`
 
 ## Start app
 

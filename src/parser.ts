@@ -1,48 +1,46 @@
 import yargs from 'yargs';
 import { createReadStream, createWriteStream } from 'fs';
+import { Arguments, Transaction } from './interfaces';
+import { parse, filterErrors } from './util';
 
-interface Arguments {
-  input: string;
-  output: string;
-}
+export const main = async (argv: Arguments): Promise<void> => {
+  const input = createReadStream(argv.input);
+  const output = createWriteStream(argv.output);
 
-const { input, output } = yargs.options({
-  input: {
-    alias: 'i',
-    describe: 'Input file',
-    type: 'string',
-    demandOption: true,
-  },
-  output: {
-    alias: 'o',
-    describe: 'Output file',
-    type: 'string',
-    demandOption: true,
-  },
-}).argv as Arguments;
+  const transactions: Transaction[] = await new Promise((resolve, reject) => {
+    let inputData = '';
 
-const readableStream = createReadStream(input);
-const writableStream = createWriteStream(output);
+    input.on('data', (data) => {
+      inputData += data;
+    });
 
-readableStream.setEncoding('utf8');
-readableStream.on('data', (chunk: String) => {
-  const lines = chunk.split('\n');
+    input.on('end', () => {
+      resolve(parse(inputData));
+    });
 
-  const transactions = lines.map((line: string) => {
-    const [date, level, transaction] = line.split(' - ');
-    const { transactionId, err } = JSON.parse(transaction);
-
-    return {
-      date: new Date(date).getTime(),
-      level,
-      transactionId,
-      err,
-    };
+    input.on('error', (err) => {
+      reject(err);
+    });
   });
 
-  const errors = transactions.filter(
-    (transaction) => transaction.level === 'error',
-  );
+  output.write(filterErrors(transactions));
+};
 
-  writableStream.write(JSON.stringify(errors));
+const argv = yargs
+  .option('input', {
+    alias: 'i',
+    description: 'The input file',
+    type: 'string',
+  })
+  .option('output', {
+    alias: 'o',
+    description: 'The output file',
+    type: 'string',
+  })
+  .demandOption(['input', 'output'])
+  .help().argv as Arguments;
+
+main(argv).catch((err) => {
+  console.error(err);
+  process.exit(1);
 });
