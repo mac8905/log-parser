@@ -1,0 +1,6 @@
+node_modules
+package-lock.json
+
+# Ignore built TS files
+dist
+parser.js
