@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "parser.js",
   "scripts": {
-    "build": "rimraf dist/* && tsc",
+    "clean": "rimraf parser.js && rimraf errors.json",
+    "build": "yarn clean && tsc",
     "start": "node parser.js --input ./app.log --output ./errors.json",
     "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts"
   },
