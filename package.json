@@ -6,7 +6,7 @@
     "clean": "rimraf parser.js && rimraf interfaces.js && rimraf util.js && rimraf errors.json",
     "build": "yarn clean && tsc",
     "start": "node parser.js --input ./app.log --output ./errors.json",
-    "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts",
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts --input ./app.log --output ./errors.json",
     "test": "jest --coverage"
   },
   "repository": "git@github.com:mac8905/log-parser.git",

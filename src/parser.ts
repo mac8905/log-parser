@@ -1,46 +1,18 @@
-import yargs from 'yargs';
 import { createReadStream, createWriteStream } from 'fs';
-import { Arguments, Transaction } from './interfaces';
-import { parse, filterErrors } from './util';
+import { Arguments } from './interfaces';
+import { Util } from './util';
 
-export const main = async (argv: Arguments): Promise<void> => {
-  const input = createReadStream(argv.input);
-  const output = createWriteStream(argv.output);
+export class Parser {
+  public static async run(args: Arguments): Promise<void> {
+    const input = await Util.read(createReadStream(args.input));
+    const transactions = Util.parse(input);
+    const errors = Util.filterErrors(transactions);
 
-  const transactions: Transaction[] = await new Promise((resolve, reject) => {
-    let inputData = '';
+    Util.write(createWriteStream(args.output), JSON.stringify(errors));
+  }
+}
 
-    input.on('data', (data) => {
-      inputData += data;
-    });
-
-    input.on('end', () => {
-      resolve(parse(inputData));
-    });
-
-    input.on('error', (err) => {
-      reject(err);
-    });
-  });
-
-  output.write(filterErrors(transactions));
-};
-
-const argv = yargs
-  .option('input', {
-    alias: 'i',
-    description: 'The input file',
-    type: 'string',
-  })
-  .option('output', {
-    alias: 'o',
-    description: 'The output file',
-    type: 'string',
-  })
-  .demandOption(['input', 'output'])
-  .help().argv as Arguments;
-
-main(argv).catch((err) => {
+Parser.run(Util.args()).catch((err) => {
   console.error(err);
   process.exit(1);
 });

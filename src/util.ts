@@ -1,25 +1,65 @@
-import { Transaction } from './interfaces';
+import yargs from 'yargs';
+import { ReadStream, WriteStream } from 'fs';
+import { Arguments, Transaction } from './interfaces';
 
-export const parse = (input: string): Transaction[] => {
-  const lines = input.split('\n');
+export class Util {
+  public static args(): Arguments {
+    return yargs
+      .option('input', {
+        alias: 'i',
+        description: 'The input file',
+        type: 'string',
+      })
+      .option('output', {
+        alias: 'o',
+        description: 'The output file',
+        type: 'string',
+      })
+      .demandOption(['input', 'output'])
+      .help().argv as Arguments;
+  }
 
-  return lines.map((line: string) => {
-    const [date, level, transaction] = line.split(' - ');
-    const { transactionId, err } = JSON.parse(transaction);
+  public static parse(input: string): Transaction[] {
+    const lines = input.split('\n');
 
-    return {
-      date: new Date(date).getTime(),
-      level,
-      transactionId,
-      err,
-    };
-  });
-};
+    return lines.map((line: string) => {
+      const [date, level, transaction] = line.split(' - ');
+      const { transactionId, err } = JSON.parse(transaction);
 
-export const filterErrors = (transactions: Transaction[]): string => {
-  const errors = transactions.filter(
-    (transaction) => transaction.level === 'error',
-  );
+      return {
+        date: new Date(date).getTime(),
+        level,
+        transactionId,
+        err,
+      };
+    });
+  }
 
-  return JSON.stringify(errors);
-};
+  public static filterErrors(transactions: Transaction[]): Transaction[] {
+    return transactions.filter((transaction: Transaction) => {
+      return transaction.level === 'error';
+    });
+  }
+
+  public static async read(input: ReadStream): Promise<string> {
+    return new Promise((resolve, reject) => {
+      let inputData = '';
+
+      input.on('data', (data) => {
+        inputData += data;
+      });
+
+      input.on('end', () => {
+        resolve(inputData);
+      });
+
+      input.on('error', (err) => {
+        reject(err);
+      });
+    });
+  }
+
+  public static write(output: WriteStream, data: string): void {
+    output.write(data);
+  }
+}
