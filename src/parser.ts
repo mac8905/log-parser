@@ -1,46 +1,19 @@
-import yargs from 'yargs';
-import { createReadStream, createWriteStream } from 'fs';
-import { Arguments, Transaction } from './interfaces';
-import { parse, filterErrors } from './util';
+import { Parser } from './domain/parser';
+import { FileSystem } from './infrastructure/fileSystem';
+import { IArguments } from './shared/interfaces';
+import { Util } from './shared/util';
 
-export const main = async (argv: Arguments): Promise<void> => {
-  const input = createReadStream(argv.input);
-  const output = createWriteStream(argv.output);
+export class Runner {
+  public static async execute(args: IArguments): Promise<void> {
+    const parser = new Parser(new FileSystem());
+    const input = await parser.read(args.input);
+    const transactions = parser.parse(input);
+    const errors = parser.filterByLevel(transactions);
+    parser.write(args.output, JSON.stringify(errors));
+  }
+}
 
-  const transactions: Transaction[] = await new Promise((resolve, reject) => {
-    let inputData = '';
-
-    input.on('data', (data) => {
-      inputData += data;
-    });
-
-    input.on('end', () => {
-      resolve(parse(inputData));
-    });
-
-    input.on('error', (err) => {
-      reject(err);
-    });
-  });
-
-  output.write(filterErrors(transactions));
-};
-
-const argv = yargs
-  .option('input', {
-    alias: 'i',
-    description: 'The input file',
-    type: 'string',
-  })
-  .option('output', {
-    alias: 'o',
-    description: 'The output file',
-    type: 'string',
-  })
-  .demandOption(['input', 'output'])
-  .help().argv as Arguments;
-
-main(argv).catch((err) => {
+Runner.execute(Util.args()).catch((err) => {
   console.error(err);
   process.exit(1);
 });

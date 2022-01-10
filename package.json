@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "parser.js",
   "scripts": {
-    "clean": "rimraf parser.js && rimraf interfaces.js && rimraf util.js && rimraf errors.json",
+    "clean": "rimraf parser.js && rimraf domain && rimraf infrastructure && rimraf shared && rimraf errors.json && rimraf coverage",
     "build": "yarn clean && tsc",
     "start": "node parser.js --input ./app.log --output ./errors.json",
-    "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts",
+    "dev": "ts-node-dev --respawn --pretty --transpile-only src/parser.ts --input ./app.log --output ./errors.json",
     "test": "jest --coverage"
   },
   "repository": "git@github.com:mac8905/log-parser.git",
