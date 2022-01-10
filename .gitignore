@@ -2,9 +2,9 @@ node_modules
 package-lock.json
 
 # Ignore built TS files
-dist
 parser.js
-interfaces.js
-util.js
 errors.json
 coverage
+/domain
+/infrastructure
+/shared

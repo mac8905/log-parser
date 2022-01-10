@@ -1,4 +1,5 @@
-import { Util } from './util';
+import { Parser } from './domain/parser';
+import { FileSystem } from './infrastructure/fileSystem';
 
 describe('parser', () => {
   it('should parse the input file', () => {
@@ -35,7 +36,9 @@ describe('parser', () => {
       },
     ];
 
-    expect(Util.parse(input)).toEqual(expected);
+    const parser = new Parser(new FileSystem());
+
+    expect(parser.parse(input)).toEqual(expected);
   });
 
   it('should write the output file', () => {
@@ -54,7 +57,8 @@ describe('parser', () => {
       },
     ];
 
-    const errors = Util.filterErrors(transactions);
+    const parser = new Parser(new FileSystem());
+    const errors = parser.filterByLevel(transactions);
 
     const expected =
       '[{"date":1546300800000,"level":"error","transactionId":"2","err":""}]';
